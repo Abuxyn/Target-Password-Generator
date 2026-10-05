@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High-Probability Wordlist Generator | Created by Abuxyn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .code-font { font-family: 'Fira Code', monospace; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold code-font text-xl">#WL</div>
+        <div>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">High-Probability Wordlist Generator</h1>
+          <p class="text-xs text-slate-400">Prioritizes high-probability password combinations</p>
+        </div>
+      </div>
+      <div class="text-xs font-semibold text-indigo-400 bg-indigo-950/80 border border-indigo-800/80 px-3 py-1.5 rounded-full">
+        Created by <span class="text-indigo-200">Abuxyn</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full flex-1">
+    
+    <!-- Input Form -->
+    <div class="lg:col-span-6 bg-slate-800/50 border border-slate-700/60 rounded-xl p-6 shadow-xl">
+      <h2 class="text-lg font-semibold mb-4 text-indigo-300 flex items-center border-b border-slate-700 pb-2">
+        Target Profile Details
+      </h2>
+
+      <form id="wordlistForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Full Name <span class="text-rose-400">*</span></label>
+            <input type="text" id="fullName" placeholder="e.g. John Doe" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Nick Name</label>
+            <input type="text" id="nickname" placeholder="e.g. Johnny, Jay" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">User ID</label>
+            <input type="text" id="userId" placeholder="e.g. johndoe99" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+            <input type="email" id="email" placeholder="e.g. john@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Date of Birth (DOB)</label>
+          <input type="date" id="dob" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Father's Name</label>
+            <input type="text" id="fatherName" placeholder="e.g. Robert Doe" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Mother's Name</label>
+            <input type="text" id="motherName" placeholder="e.g. Mary Doe" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Partner Name</label>
+          <input type="text" id="partnerName" placeholder="e.g. Sarah Smith" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Extra Keyword / Year</label>
+            <input type="text" id="extraField" placeholder="e.g. 2026, admin, king" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Max Output Limit</label>
+            <input type="number" id="maxCount" min="1" max="50000" value="5000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-100">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-lg transition duration-200 mt-2 shadow-lg shadow-indigo-600/30">
+          Generate Wordlist
+        </button>
+      </form>
+    </div>
+
+    <!-- Output Display -->
+    <div class="lg:col-span-6 flex flex-col h-full">
+      <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-6 shadow-xl flex-1 flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+          <div>
+            <h2 class="text-lg font-semibold text-indigo-300">Generated Results</h2>
+            <span id="countBadge" class="text-xs bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800">0 words</span>
+          </div>
+          <div class="flex space-x-2">
+            <button id="btnTxt" disabled onclick="downloadFile('txt')" class="bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-xs px-3 py-1.5 rounded text-white transition">TXT</button>
+            <button id="btnCsv" disabled onclick="downloadFile('csv')" class="bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-xs px-3 py-1.5 rounded text-white transition">CSV</button>
+            <button id="btnPdf" disabled onclick="downloadFile('pdf')" class="bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-xs px-3 py-1.5 rounded text-white transition">PDF</button>
+          </div>
+        </div>
+
+        <textarea id="outputArea" readonly placeholder="Generated passwords will appear here in high-probability priority..." class="w-full h-96 lg:h-full bg-slate-950 border border-slate-800 rounded-lg p-4 code-font text-xs text-green-400 focus:outline-none resize-none leading-relaxed overflow-y-scroll"></textarea>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950/60 py-4 text-center text-xs text-slate-500">
+    <p>Wordlist Generator Tool &bull; Created by <span class="text-slate-300 font-medium">Abuxyn</span></p>
+  </footer>
+
+  <script>
+    let generatedWords = [];
+
+    document.getElementById('wordlistForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      generateWordlist();
+    });
+
+    function generateWordlist() {
+      const fullName = document.getElementById('fullName').value.trim();
+      const nickname = document.getElementById('nickname').value.trim();
+      const userId = document.getElementById('userId').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const dobVal = document.getElementById('dob').value;
+      const fatherName = document.getElementById('fatherName').value.trim();
+      const motherName = document.getElementById('motherName').value.trim();
+      const partnerName = document.getElementById('partnerName').value.trim();
+      const extraField = document.getElementById('extraField').value.trim();
+      const maxCount = parseInt(document.getElementById('maxCount').value) || 5000;
+
+      let rawNames = [];
+      if (fullName) {
+        rawNames.push(...fullName.split(/\s+/));
+        rawNames.push(fullName.replace(/\s+/g, ''));
+      }
+      if (nickname) rawNames.push(...nickname.split(/[,\s]+/));
+      if (userId) rawNames.push(userId);
+      if (email) rawNames.push(email.split('@')[0]);
+      if (fatherName) rawNames.push(...fatherName.split(/\s+/));
+      if (motherName) rawNames.push(...motherName.split(/\s+/));
+      if (partnerName) rawNames.push(...partnerName.split(/\s+/));
+
+      let nameTokens = [...new Set(rawNames.filter(n => n.length > 0))];
+
+      let nameVariants = [];
+      nameTokens.forEach(n => {
+        let title = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+        let lower = n.toLowerCase();
+        let upper = n.toUpperCase();
+
+        if (!nameVariants.includes(title)) nameVariants.push(title);
+        if (!nameVariants.includes(lower)) nameVariants.push(lower);
+        if (!nameVariants.includes(upper)) nameVariants.push(upper);
+      });
+
+      let yearTokens = [];
+      let shortDateTokens = [];
+      let fullDateTokens = [];
+
+      if (dobVal) {
+        const dateObj = new Date(dobVal);
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = String(dateObj.getFullYear());
+        const shortYear = year.slice(-2);
+
+        yearTokens = [year, shortYear];
+        shortDateTokens = [day, month, `${day}${month}`, `${month}${day}`, `${day}${shortYear}`];
+        fullDateTokens = [`${day}${month}${year}`, `${day}${month}${shortYear}`, `${year}${month}${day}`];
+      }
+
+      const prioritySymbols = ['@', '!', '#', '$', '_', ''];
+      const priorityDigits = ['123', '2026', '1234', '1', '786', '007'];
+
+      if (extraField) {
+        priorityDigits.unshift(...extraField.split(/[,\s]+/));
+      }
+
+      let results = [];
+      let addedSet = new Set();
+
+      function addWord(word) {
+        if (!word) return;
+        if (!addedSet.has(word)) {
+          addedSet.add(word);
+          results.push(word);
+        }
+      }
+
+      // TIER 1 (HIGHEST PROBABILITY): Name + Symbol + Year/Digits
+      nameVariants.forEach(name => {
+        prioritySymbols.forEach(sym => {
+          yearTokens.forEach(yr => addWord(`${name}${sym}${yr}`));
+          priorityDigits.forEach(dig => addWord(`${name}${sym}${dig}`));
+        });
+      });
+
+      // TIER 2: Name + Symbol + DOB Combinations
+      nameVariants.forEach(name => {
+        prioritySymbols.forEach(sym => {
+          fullDateTokens.forEach(fd => addWord(`${name}${sym}${fd}`));
+          shortDateTokens.forEach(sd => addWord(`${name}${sym}${sd}`));
+        });
+      });
+
+      // TIER 3: Name + Common Suffixes
+      const commonSuffixes = ['123', '12345', 'admin', 'login', 'pass', 'password', 'king', 'boy', 'cool', 'secure'];
+      nameVariants.forEach(name => {
+        prioritySymbols.forEach(sym => {
+          commonSuffixes.forEach(suf => addWord(`${name}${sym}${suf}`));
+        });
+      });
+
+      // TIER 4: Prefix DOB/Year + Name
+      const allDates = [...yearTokens, ...shortDateTokens, ...fullDateTokens];
+      allDates.forEach(dt => {
+        prioritySymbols.forEach(sym => {
+          nameVariants.forEach(name => addWord(`${dt}${sym}${name}`));
+        });
+      });
+
+      generatedWords = results.slice(0, maxCount);
+
+      const outputArea = document.getElementById('outputArea');
+      outputArea.value = generatedWords.join('\n');
+      document.getElementById('countBadge').innerText = `${generatedWords.length} words`;
+
+      const hasWords = generatedWords.length > 0;
+      document.getElementById('btnTxt').disabled = !hasWords;
+      document.getElementById('btnCsv').disabled = !hasWords;
+      document.getElementById('btnPdf').disabled = !hasWords;
+    }
+
+    function downloadFile(type) {
+      if (generatedWords.length === 0) return;
+      const filename = `wordlist_${Date.now()}.${type}`;
+
+      if (type === 'txt') {
+        const blob = new Blob([generatedWords.join('\n')], { type: 'text/plain' });
+        triggerDownload(blob, filename);
+      } else if (type === 'csv') {
+        const csvContent = 'Password\n' + generatedWords.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        triggerDownload(blob, filename);
+      } else if (type === 'pdf') {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(10);
+
+        let y = 10;
+        doc.text("Generated Wordlist (Created by Abuxyn)", 10, y);
+        y += 10;
+
+        const pageHeight = doc.internal.pageSize.height;
+        generatedWords.forEach(word => {
+          if (y > pageHeight - 10) {
+            doc.addPage();
+            y = 10;
+          }
+          doc.text(word, 10, y);
+          y += 6;
+        });
+
+        doc.save(filename);
+      }
+    }
+
+    function triggerDownload(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
