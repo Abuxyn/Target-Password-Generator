@@ -18,7 +18,12 @@
   <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold code-font text-xl">#WL</div>
+        <!-- Password Key / Security Logo -->
+        <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white p-2.5 rounded-xl shadow-md shadow-indigo-600/30 flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+          </svg>
+        </div>
         <div>
           <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">High-Probability Wordlist Generator</h1>
           <p class="text-xs text-slate-400">Prioritizes high-probability password combinations</p>
@@ -40,6 +45,34 @@
       </h2>
 
       <form id="wordlistForm" class="space-y-4">
+        <!-- Target Gender & Age Filter Options -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/60 p-3.5 rounded-xl border border-indigo-500/20">
+          <div>
+            <label class="block text-xs font-medium text-indigo-300 mb-1.5">Target Gender</label>
+            <div class="flex space-x-2">
+              <label class="flex-1 text-center bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg py-1.5 px-2 text-xs cursor-pointer has-[:checked]:bg-indigo-600 has-[:checked]:border-indigo-500 has-[:checked]:text-white transition">
+                <input type="radio" name="gender" value="male" class="sr-only"> Male ♂
+              </label>
+              <label class="flex-1 text-center bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg py-1.5 px-2 text-xs cursor-pointer has-[:checked]:bg-indigo-600 has-[:checked]:border-indigo-500 has-[:checked]:text-white transition">
+                <input type="radio" name="gender" value="female" class="sr-only"> Female ♀
+              </label>
+              <label class="flex-1 text-center bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg py-1.5 px-2 text-xs cursor-pointer has-[:checked]:bg-indigo-600 has-[:checked]:border-indigo-500 has-[:checked]:text-white transition">
+                <input type="radio" name="gender" value="all" checked class="sr-only"> All ⚥
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-indigo-300 mb-1.5">Age Bracket Filter</label>
+            <select id="ageGroup" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 text-slate-100">
+              <option value="any">Any / Unspecified</option>
+              <option value="teen">Teens (13 - 19 years)</option>
+              <option value="young_adult">Young Adult (20 - 30 years)</option>
+              <option value="adult">Adult (31 - 50 years)</option>
+              <option value="senior">Senior (50+ years)</option>
+            </select>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-slate-300 mb-1">Full Name <span class="text-rose-400">*</span></label>
@@ -146,19 +179,27 @@
       const extraField = document.getElementById('extraField').value.trim();
       const maxCount = parseInt(document.getElementById('maxCount').value) || 5000;
 
+      // Filter settings
+      const genderEl = document.querySelector('input[name="gender"]:checked');
+      const gender = genderEl ? genderEl.value : 'all';
+      const ageGroup = document.getElementById('ageGroup').value;
+
       let rawNames = [];
       if (fullName) {
         rawNames.push(...fullName.split(/\s+/));
-        rawNames.push(fullName.replace(/\s+/g, ''));
+        rawNames.push(fullName.replace(/[\s_\W]+/g, ''));
       }
       if (nickname) rawNames.push(...nickname.split(/[,\s]+/));
-      if (userId) rawNames.push(userId);
+      if (userId) {
+        rawNames.push(userId);
+        rawNames.push(userId.replace(/^[_.\W]+|[_.\W]+$/g, ''));
+      }
       if (email) rawNames.push(email.split('@')[0]);
       if (fatherName) rawNames.push(...fatherName.split(/\s+/));
       if (motherName) rawNames.push(...motherName.split(/\s+/));
       if (partnerName) rawNames.push(...partnerName.split(/\s+/));
 
-      let nameTokens = [...new Set(rawNames.filter(n => n.length > 0))];
+      let nameTokens = [...new Set(rawNames.filter(n => n && n.length > 0))];
 
       let nameVariants = [];
       nameTokens.forEach(n => {
@@ -169,6 +210,12 @@
         if (!nameVariants.includes(title)) nameVariants.push(title);
         if (!nameVariants.includes(lower)) nameVariants.push(lower);
         if (!nameVariants.includes(upper)) nameVariants.push(upper);
+
+        // Simple Leetspeak
+        let leet = lower.replace(/a/g, '@').replace(/o/g, '0').replace(/i/g, '1').replace(/e/g, '3').replace(/s/g, '$');
+        let leetTitle = leet.charAt(0).toUpperCase() + leet.slice(1);
+        if (!nameVariants.includes(leet)) nameVariants.push(leet);
+        if (!nameVariants.includes(leetTitle)) nameVariants.push(leetTitle);
       });
 
       let yearTokens = [];
@@ -187,57 +234,125 @@
         fullDateTokens = [`${day}${month}${year}`, `${day}${month}${shortYear}`, `${year}${month}${day}`];
       }
 
-      const prioritySymbols = ['@', '!', '#', '$', '_', ''];
-      const priorityDigits = ['123', '2026', '1234', '1', '786', '007'];
+      // Dynamic Word Suffixes based on Gender Filter
+      let commonWordSuffixes = ['cool', 'boss', 'hacker', 'pro', 'vip', 'master', 'user', 'star', 'rock', 'hero', 'lover', 'admin', 'login', 'pass', 'password', 'official', 'secure'];
+      
+      const maleWords = ['king', 'boy', 'bro', 'dude', 'dada', 'gentle', 'mister', 'man'];
+      const femaleWords = ['queen', 'girl', 'princess', 'lady', 'angel', 'doll', 'miss', 'cute', 'sweet', 'pink'];
+
+      if (gender === 'male') {
+        commonWordSuffixes.unshift(...maleWords);
+      } else if (gender === 'female') {
+        commonWordSuffixes.unshift(...femaleWords);
+      } else {
+        commonWordSuffixes.unshift(...maleWords, ...femaleWords);
+      }
+
+      // Standard numbers & Age Filter Years
+      const commonNumbers = ['123', '1234', '12345', '2026', '2025', '2024', '2023', '2022', '2000', '786', '007', '1', '12', '123456'];
+
+      // Add year ranges depending on selected Age Bracket
+      let minYr = 1970, maxYr = 2026;
+      if (ageGroup === 'teen') { minYr = 2007; maxYr = 2013; }
+      else if (ageGroup === 'young_adult') { minYr = 1996; maxYr = 2006; }
+      else if (ageGroup === 'adult') { minYr = 1976; maxYr = 1995; }
+      else if (ageGroup === 'senior') { minYr = 1950; maxYr = 1975; }
+
+      for (let yr = maxYr; yr >= minYr; yr--) {
+        let yStr = String(yr);
+        if (!commonNumbers.includes(yStr)) commonNumbers.push(yStr);
+      }
+
+      for (let i = 0; i <= 99; i++) {
+        let str = String(i).padStart(2, '0');
+        if (!commonNumbers.includes(str)) commonNumbers.push(str);
+      }
 
       if (extraField) {
-        priorityDigits.unshift(...extraField.split(/[,\s]+/));
+        let extraList = extraField.split(/[,\s]+/);
+        commonWordSuffixes.unshift(...extraList);
+        commonNumbers.unshift(...extraList);
       }
+
+      const prioritySymbols = ['@', '!', '#', '$', '_', '.', ''];
 
       let results = [];
       let addedSet = new Set();
 
       function addWord(word) {
         if (!word) return;
-        if (!addedSet.has(word)) {
+        if (!addedSet.has(word) && results.length < maxCount) {
           addedSet.add(word);
           results.push(word);
         }
       }
 
-      // TIER 1 (HIGHEST PROBABILITY): Name + Symbol + Year/Digits
-      nameVariants.forEach(name => {
-        prioritySymbols.forEach(sym => {
-          yearTokens.forEach(yr => addWord(`${name}${sym}${yr}`));
-          priorityDigits.forEach(dig => addWord(`${name}${sym}${dig}`));
-        });
-      });
+      // TIER 1: Gender-Aware Word Suffixes (e.g. abuking / abuqueen)
+      for (let name of nameVariants) {
+        for (let suf of commonWordSuffixes) {
+          for (let sym of prioritySymbols) {
+            addWord(`${name}${sym}${suf}`);
+            addWord(`${name}${sym}${suf.toUpperCase()}`);
+            addWord(`${name}${sym}${suf.charAt(0).toUpperCase() + suf.slice(1)}`);
+            if (results.length >= maxCount) break;
+          }
+          if (results.length >= maxCount) break;
+        }
+        if (results.length >= maxCount) break;
+      }
 
-      // TIER 2: Name + Symbol + DOB Combinations
-      nameVariants.forEach(name => {
-        prioritySymbols.forEach(sym => {
-          fullDateTokens.forEach(fd => addWord(`${name}${sym}${fd}`));
-          shortDateTokens.forEach(sd => addWord(`${name}${sym}${sd}`));
-        });
-      });
+      // TIER 2: Name + Symbol + Age-Filtered Years / Numbers
+      if (results.length < maxCount) {
+        for (let name of nameVariants) {
+          for (let sym of prioritySymbols) {
+            for (let yr of yearTokens) {
+              addWord(`${name}${sym}${yr}`);
+              if (results.length >= maxCount) break;
+            }
+            for (let num of commonNumbers) {
+              addWord(`${name}${sym}${num}`);
+              if (results.length >= maxCount) break;
+            }
+            if (results.length >= maxCount) break;
+          }
+          if (results.length >= maxCount) break;
+        }
+      }
 
-      // TIER 3: Name + Common Suffixes
-      const commonSuffixes = ['123', '12345', 'admin', 'login', 'pass', 'password', 'king', 'boy', 'cool', 'secure'];
-      nameVariants.forEach(name => {
-        prioritySymbols.forEach(sym => {
-          commonSuffixes.forEach(suf => addWord(`${name}${sym}${suf}`));
-        });
-      });
+      // TIER 3: Name + Special Char + DOB Combinations
+      if (results.length < maxCount) {
+        for (let name of nameVariants) {
+          for (let sym of prioritySymbols) {
+            for (let fd of fullDateTokens) {
+              addWord(`${name}${sym}${fd}`);
+              if (results.length >= maxCount) break;
+            }
+            for (let sd of shortDateTokens) {
+              addWord(`${name}${sym}${sd}`);
+              if (results.length >= maxCount) break;
+            }
+            if (results.length >= maxCount) break;
+          }
+          if (results.length >= maxCount) break;
+        }
+      }
 
-      // TIER 4: Prefix DOB/Year + Name
-      const allDates = [...yearTokens, ...shortDateTokens, ...fullDateTokens];
-      allDates.forEach(dt => {
-        prioritySymbols.forEach(sym => {
-          nameVariants.forEach(name => addWord(`${dt}${sym}${name}`));
-        });
-      });
+      // TIER 4: Prefix Numbers/Words + Special Char + Name
+      if (results.length < maxCount) {
+        const allPrefixes = [...commonWordSuffixes, ...yearTokens, ...shortDateTokens, ...fullDateTokens, ...commonNumbers];
+        for (let pre of allPrefixes) {
+          for (let sym of prioritySymbols) {
+            for (let name of nameVariants) {
+              addWord(`${pre}${sym}${name}`);
+              if (results.length >= maxCount) break;
+            }
+            if (results.length >= maxCount) break;
+          }
+          if (results.length >= maxCount) break;
+        }
+      }
 
-      generatedWords = results.slice(0, maxCount);
+      generatedWords = results;
 
       const outputArea = document.getElementById('outputArea');
       outputArea.value = generatedWords.join('\n');
